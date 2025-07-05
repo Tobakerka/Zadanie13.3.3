@@ -12,7 +12,7 @@ public class ServerChat {
     ArrayList <Client> clients = new ArrayList<>();
     ServerSocket serverSocket;
     int port = 1212;
-    String ip = "212.192.43.73";
+    String ip = "192.168.1.188";
 
     public ServerChat() throws IOException {
 
@@ -82,6 +82,7 @@ public class ServerChat {
                 output = new PrintStream(os);
 
                 output.println("Добро пожаловать в чат!");
+                output.println("Общий чат: ");
                 while (name.equals("")) {
                     output.println("Введите имя:");
                     name = input.nextLine();
@@ -102,29 +103,121 @@ public class ServerChat {
                     Date dateChat = new Date();
                     formater = new SimpleDateFormat("HH:mm:ss");
                     message = input.nextLine();
+
                     hour = formater.format(dateChat);
                     switch (message) {
 
-                        case "help": {
-                            output.println("help - выводит список команд");
-                            output.println("clients - выводит список клиентов");
-                            output.println("exit - отключается от чата");
+                        case "*помощь": {
+                            output.println("*помощь - выводит список команд");
+                            output.println("*клиенты - выводит список клиентов");
+                            output.println("*лс - отправка личного сообщения");
+                            output.println("*комната - создание комнаты");
+                            output.println("*выход - отключается от чата");
                             break;
                         }
-                        case "clients": {
+                        case "*клиенты": {
                             output.println("Список клиентов:\n");
+                            output.println("****************************************");
                             for (Client client : clients) {
 
                                 output.println(client.name);
                             }
+                            output.println("****************************************");
                             break;
                         }
-                        case "exit": {
+                        case "*лс" : {
+
+                            output.println();
+                            output.println("Список клиентов:\n");
+                            Client clientLs = null;
+                            output.println("****************************************");
+
+                            for (Client client : clients) {
+
+                                output.println(client.name);
+                            }
+                            output.println("****************************************");
+
+                            output.println();
+                            System.out.println("Введите имя клиента: ");
+
+                            String nameClientPrivate = input.nextLine();
+
+                            boolean isClient = false;
+                            for (Client client : clients) {
+
+                                if (nameClientPrivate.equals(client.name)) {
+                                    isClient = true;
+                                    clientLs = client;
+                                    output.print(client.name+ ": сообщение: ");
+                                    clientLs.output.println("Вам личное сообщение от: " + this.name + "\n\r" + formater.format(dateChat) + " : " + input.nextLine());
+                                    this.output.println("личное сообщение отправлено: " + clientLs.name);
+                                }
+                            }
+
+                            if (isClient == false) {
+                                output.println("Такого клиента нет!");
+                            }
+
+                            output.println("Общий чат: ");
+                            break;
+                        }
+                        case "*комната" : {
+
+                            output.println();
+                            output.println("Список клиентов:\n");
+                            Client clientLs = null;
+                            output.println("****************************************");
+
+                            for (Client client : clients) {
+
+                                output.println(client.name);
+                            }
+                            output.println("****************************************");
+
+                            output.println();
+                            System.out.println("Введите имя клиента к которому нужно подключиться: ");
+
+                            String nameClientPrivate = input.nextLine();
+
+                            boolean isClient = false;
+                            for (Client client : clients) {
+
+                                if (nameClientPrivate.equals(client.name)) {
+                                    isClient = true;
+                                    clientLs = client;
+
+                                    String privateMessage = "";
+                                    output.println("для выхода введите ***");
+                                    while (!privateMessage.equals("***")) {
+                                        output.print(client.name + ": сообщение: ");
+                                        privateMessage = input.nextLine();
+                                        clientLs.output.println("Вам личное сообщение от: " + this.name + "\n\r" + formater.format(dateChat) + " : " + privateMessage);
+                                        this.output.println("личное сообщение отправлено: " + clientLs.name);
+                                    }
+                                    output.println("Общий чат: ");
+                                }
+                            }
+
+                            if (isClient == false) {
+                                output.println("Такого клиента нет!");
+                            }
+
+                            break;
+                        }
+                        case "*выход": {
 
                             output.println("До свидания!");
 
+                            for (Client client : clients) {
+
+                                client.output.println(this.name + " отключился от чата");
+                            }
+
                             is.close();
                             os.close();
+                            input.close();
+                            output.close();
                             socket.close();
                             clients.remove(this);
 
@@ -149,6 +242,8 @@ public class ServerChat {
 
                 is.close();
                 os.close();
+                input.close();
+                output.close();
                 socket.close();
                 clients.remove(this);
             } catch (IOException e) {
