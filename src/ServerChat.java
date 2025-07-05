@@ -214,6 +214,7 @@ public class ServerChat {
                                 client.output.println(this.name + " отключился от чата");
                             }
 
+
                             is.close();
                             os.close();
                             input.close();
@@ -221,7 +222,7 @@ public class ServerChat {
                             socket.close();
                             clients.remove(this);
 
-                            break;
+                            return; // выход из цикла
                         }
                         default: {
 
@@ -246,6 +247,7 @@ public class ServerChat {
                 output.close();
                 socket.close();
                 clients.remove(this);
+                System.out.println("Клиент отключился");
             } catch (IOException e) {
                 new CustomException("ошибка ввода/вывода");
             }
