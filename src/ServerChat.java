@@ -84,8 +84,21 @@ public class ServerChat {
                 output.println("Добро пожаловать в чат!");
                 output.println("Общий чат: ");
                 while (name.equals("")) {
+
+                    boolean isName = true;
                     output.println("Введите имя:");
-                    name = input.nextLine();
+                    String tempName = input.nextLine();
+                    for (Client client : clients) {
+                        if (tempName.equals(client.name)) {
+                            output.println("Имя занято!");
+                            isName = false;
+                        }
+                    }
+                    if (!isName) {
+                        name = "";
+                    } else {
+                        name = tempName;
+                    }
                 }
 
                 String hour = formater.format(date);
@@ -150,8 +163,9 @@ public class ServerChat {
                                     isClient = true;
                                     clientLs = client;
                                     output.print(client.name+ ": сообщение: ");
-                                    clientLs.output.println("Вам личное сообщение от: " + this.name + "\n\r" + formater.format(dateChat) + " : " + input.nextLine());
+                                    clientLs.output.println("Вам личное сообщение от: " + this.name + "\n\rЛС: " + formater.format(dateChat) + " : " + input.nextLine());
                                     this.output.println("личное сообщение отправлено: " + clientLs.name);
+                                    output.println("Общий чат: ");
                                 }
                             }
 
@@ -159,7 +173,7 @@ public class ServerChat {
                                 output.println("Такого клиента нет!");
                             }
 
-                            output.println("Общий чат: ");
+
                             break;
                         }
                         case "*комната" : {
@@ -192,7 +206,7 @@ public class ServerChat {
                                     while (!privateMessage.equals("***")) {
                                         output.print(client.name + ": сообщение: ");
                                         privateMessage = input.nextLine();
-                                        clientLs.output.println("Вам личное сообщение от: " + this.name + "\n\r" + formater.format(dateChat) + " : " + privateMessage);
+                                        clientLs.output.println("Вам личное сообщение от: " + this.name + "\n\rЛС: " + formater.format(dateChat) + " : " + privateMessage);
                                         this.output.println("личное сообщение отправлено: " + clientLs.name);
                                     }
                                     output.println("Общий чат: ");
