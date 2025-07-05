@@ -16,7 +16,7 @@ public class Main {
 
             System.out.println("1 - Запустить сервер");
             System.out.println("2 - Задать порт");
-            System.out.println("3 - Выход");
+            System.out.println("0 - Выход");
 
             Scanner scanner = new Scanner(System.in);
             String input = scanner.nextLine();
@@ -52,7 +52,7 @@ public class Main {
                     break;
 
                 }
-                case "3": {
+                case "0": {
 
                     System.out.println("Выход");
                     isServer = false;

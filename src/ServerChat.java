@@ -32,15 +32,14 @@ public class ServerChat {
             new CustomException("не удалось создать сокет сервера");
         }
         this.port = port;
-        this.ip = ip;
     }
 
     public void run() {
 
+        System.out.println("Адрес сервера : " + ip);
+        System.out.println("Сервер запущен на порту " + port);
         while (true) {
 
-            System.out.println("Адрес сервера : " + ip);
-            System.out.println("Сервер запущен на порту " + port);
             System.out.println("Ожидание подключения...");
 
             try {
@@ -50,8 +49,6 @@ public class ServerChat {
                 clients.add(client);
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                System.out.println("Сервер завершил работу");
             }
         }
     }
@@ -75,7 +72,7 @@ public class ServerChat {
 
             Date date = new Date();
             SimpleDateFormat formater = new SimpleDateFormat("HH:mm:ss");
-            System.out.println("Клиент: " + this.socket.toString() + " подключился в " + formater.format(date));
+
 
             try {
                 is = socket.getInputStream();
@@ -95,6 +92,7 @@ public class ServerChat {
 
                     client.output.println(hour + ": " + this.name + " подключился к чату");
 
+
                 }
 
                 String message = "";
@@ -109,6 +107,7 @@ public class ServerChat {
 
                         case "help": {
                             output.println("help - выводит список команд");
+                            output.println("clients - выводит список клиентов");
                             output.println("exit - отключается от чата");
                             break;
                         }
@@ -116,7 +115,7 @@ public class ServerChat {
                             output.println("Список клиентов:\n");
                             for (Client client : clients) {
 
-                                output.println(name);
+                                output.println(client.name);
                             }
                             break;
                         }
@@ -153,7 +152,7 @@ public class ServerChat {
                 socket.close();
                 clients.remove(this);
             } catch (IOException e) {
-                e.printStackTrace();
+                new CustomException("ошибка ввода/вывода");
             }
         }
     }
