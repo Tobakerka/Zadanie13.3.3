@@ -14,7 +14,7 @@ public class Main {
         while (isServer) {
             System.out.println("Меню:\n");
 
-            System.out.println("1 - Запустить сервер");
+            System.out.println("1 - Запустить сервер на стандартном порту: 1212");
             System.out.println("2 - Задать порт");
             System.out.println("0 - Выход");
 
