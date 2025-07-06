@@ -20,21 +20,22 @@ public class ServerChat {
 
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            new CustomException("не удалось создать сокет сервера");
+            throw new CustomException("не удалось создать сокет сервера");
         }
     }
 
-    public ServerChat(int port) {
+    public ServerChat(String adress, int port) throws CustomException {
 
+        this.ip = adress;
         try {
         serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            new CustomException("не удалось создать сокет сервера");
+            throw new CustomException("не удалось создать сокет сервера");
         }
         this.port = port;
     }
 
-    public void run() {
+    public void run() throws CustomException {
 
         System.out.println("Адрес сервера : " + ip);
         System.out.println("Сервер запущен на порту " + port);
@@ -48,7 +49,7 @@ public class ServerChat {
                 Client client = new Client(socket);
                 clients.add(client);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new CustomException("подключение клиента не удалось");
             }
         }
     }
@@ -116,6 +117,9 @@ public class ServerChat {
                     Date dateChat = new Date();
                     formater = new SimpleDateFormat("HH:mm:ss");
                     message = input.nextLine();
+                    if (message.equals("")) {
+                        continue;
+                    }
 
                     hour = formater.format(dateChat);
                     switch (message) {
@@ -163,7 +167,12 @@ public class ServerChat {
                                     isClient = true;
                                     clientLs = client;
                                     output.print(client.name+ ": сообщение: ");
-                                    clientLs.output.println("Вам личное сообщение от: " + this.name + "\n\rЛС: " + formater.format(dateChat) + " : " + input.nextLine());
+                                    String privateMassege = input.nextLine();
+                                    if (privateMassege.equals("")) {
+                                        output.println("Отмена отправки сообщения\n\tОбщий чат: ");
+                                        continue;
+                                    }
+                                    clientLs.output.println("Вам личное сообщение от: " + this.name + "\n\rЛС: " + formater.format(dateChat) + " : " + privateMassege);
                                     this.output.println("личное сообщение отправлено: " + clientLs.name);
                                     output.println("Общий чат: ");
                                 }
@@ -206,6 +215,9 @@ public class ServerChat {
                                     while (!privateMessage.equals("***")) {
                                         output.print(client.name + ": сообщение: ");
                                         privateMessage = input.nextLine();
+                                        if (privateMessage.equals("")) {
+                                            continue;
+                                        }
                                         clientLs.output.println("Вам личное сообщение от: " + this.name + "\n\rЛС: " + formater.format(dateChat) + " : " + privateMessage);
                                         this.output.println("личное сообщение отправлено: " + clientLs.name);
                                     }
@@ -262,6 +274,8 @@ public class ServerChat {
                 socket.close();
                 clients.remove(this);
                 System.out.println("Клиент отключился");
+            } catch (RuntimeException e) {
+                new CustomException("ошибка ввода/вывода");
             } catch (IOException e) {
                 new CustomException("ошибка ввода/вывода");
             }
