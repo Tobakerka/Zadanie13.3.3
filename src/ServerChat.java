@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static java.lang.Thread.sleep;
+
 public class ServerChat {
 
     ArrayList <Client> clients = new ArrayList<>();
@@ -20,8 +22,11 @@ public class ServerChat {
 
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            throw new CustomException("не удалось создать сокет сервера");
+            if (serverSocket == null) {
+                throw new IOException("Не удалось создать сокет сервера");
+            }
         }
+
     }
 
     public ServerChat(String adress, int port) throws CustomException {
@@ -33,6 +38,8 @@ public class ServerChat {
             throw new CustomException("не удалось создать сокет сервера");
         }
         this.port = port;
+
+
     }
 
     public void run() throws CustomException {
@@ -49,7 +56,7 @@ public class ServerChat {
                 Client client = new Client(socket);
                 clients.add(client);
             } catch (IOException e) {
-                throw new CustomException("подключение клиента не удалось");
+                new CustomException("подключение клиента не удалось");
             }
         }
     }
@@ -65,11 +72,42 @@ public class ServerChat {
         Client(Socket socket) {
 
             this.socket = socket;
-            new Thread(this).start();
-
+            Thread thread = new Thread(this);
+            thread.start();
         }
 
         public void run() {
+            Thread threadDemon = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    try {
+                        while (true) {
+                            sleep(1000);
+                            int read = socket.getInputStream().read();
+                            if (read == -1) {
+                                String tempName = clients.get(clients.indexOf(Client.this)).name;
+                                for (Client client : clients) {
+                                    client.output.println(tempName + " отключился от чата");
+                                }
+                                clients.remove(Client.this);
+                                is.close();
+                                os.close();
+                            }
+                        }
+                    } catch (IOException e) {
+                        System.out.println("Клиент отключился");
+                    } catch (RuntimeException e) {
+                        System.out.println("Разорвано соединение");
+                    } catch (InterruptedException e) {
+                        System.out.println("Ошибка потока");
+                    }
+
+                }
+            });
+            threadDemon.setDaemon(true);
+            threadDemon.start();
 
             Date date = new Date();
             SimpleDateFormat formater = new SimpleDateFormat("HH:mm:ss");
@@ -89,14 +127,17 @@ public class ServerChat {
                     boolean isName = true;
                     output.println("Введите имя:");
                     String tempName = input.nextLine();
+
                     for (Client client : clients) {
                         if (tempName.equals(client.name)) {
-                            output.println("Имя занято!");
+                            output.println("Введите другое имя!");
                             isName = false;
                         }
                     }
+
                     if (!isName) {
                         name = "";
+                        isName = true;
                     } else {
                         name = tempName;
                     }
